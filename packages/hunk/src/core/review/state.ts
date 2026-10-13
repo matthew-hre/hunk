@@ -193,6 +193,7 @@ export interface ReviewState {
   selection: ReviewSemanticSelection;
   reveal: ReviewRevealIntent;
   filter: string;
+  showGeneratedFiles: boolean;
   showAgentNotes: boolean;
   /** Stable identity of the stored note the reviewer explicitly selected. */
   activeNoteId: string | null;
@@ -214,7 +215,7 @@ export function createInitialReviewState(
     document,
     stateRevision: 0,
     selection: {
-      fileKey: document.files[0]?.key ?? null,
+      fileKey: document.files.find((file) => !file.isGenerated)?.key ?? null,
       hunkIndex: 0,
     },
     reveal: {
@@ -223,6 +224,7 @@ export function createInitialReviewState(
       scrollToNote: false,
     },
     filter: "",
+    showGeneratedFiles: false,
     showAgentNotes: options.showAgentNotes ?? false,
     activeNoteId: null,
     liveNotes: [],

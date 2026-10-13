@@ -135,6 +135,18 @@ hunk diff --files before.ts after.ts --watch # auto-reload when either file chan
 git diff --no-color | hunk patch -          # review a patch from stdin
 ```
 
+### Generated files
+
+Git-backed reviews hide files marked `linguist-generated` or `linguist-generated=true`
+in `.gitattributes` by default. Choose **View → Generated files** to show them again;
+the menu reports their count, and the text filter still applies. Nested attribute rules
+and explicit `linguist-generated=false` overrides are respected by Git.
+
+Hunk reads the checkout's current attributes, including for `show`, staged, and stash
+reviews. Raw patches and direct file comparisons have no repository attributes to consult.
+The toggle lasts for the current review, survives refresh, and can be bound to a key with
+`hunk.view.toggleGeneratedFiles`.
+
 ### Working with agents
 
 1. Open Hunk in another terminal with `hunk diff` or `hunk show`.

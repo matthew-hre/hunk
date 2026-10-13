@@ -61,6 +61,7 @@ export interface ReviewContentManifestFile {
   changeKind: string;
   language?: string;
   agentSummary?: string;
+  isGenerated?: boolean;
   stats: ReviewFileStatsV1;
   flags: ReviewFileFlagsV1;
   contentIdentity: string;
@@ -108,6 +109,7 @@ export function buildReviewContentManifestFile(file: ReviewFileV1): ReviewConten
     changeKind: file.changeKind,
     ...(file.language !== undefined ? { language: file.language } : {}),
     ...(file.agentSummary !== undefined ? { agentSummary: file.agentSummary } : {}),
+    ...(file.isGenerated ? { isGenerated: true } : {}),
     stats: { ...file.stats },
     flags: { ...file.flags },
     contentIdentity: file.contentIdentity,

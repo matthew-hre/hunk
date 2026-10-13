@@ -201,6 +201,68 @@ afterEach(() => {
 });
 
 describe("loadAppBootstrap", () => {
+  test("classifies generated Git files using nested attributes and explicit overrides", async () => {
+    const dir = createTempRepo("hunk-generated-");
+    mkdirSync(join(dir, "generated"));
+    writeFileSync(
+      join(dir, ".gitattributes"),
+      "generated/* linguist-generated=true\nbare.txt linguist-generated\n",
+    );
+    writeFileSync(
+      join(dir, "generated", ".gitattributes"),
+      "manual.txt linguist-generated=false\nunset.txt -linguist-generated\nreset.txt !linguist-generated\n",
+    );
+    const paths = [
+      "generated/output file.txt",
+      "generated/deleted.txt",
+      "generated/manual.txt",
+      "generated/unset.txt",
+      "generated/reset.txt",
+      "bare.txt",
+      "source.txt",
+    ];
+    for (const path of paths) {
+      writeFileSync(join(dir, path), "before\n");
+    }
+    git(dir, "add", ".");
+    git(dir, "commit", "-m", "initial");
+    for (const path of paths) {
+      writeFileSync(join(dir, path), "after\n");
+    }
+    rmSync(join(dir, "generated", "deleted.txt"));
+    writeFileSync(join(dir, "generated", "untracked.txt"), "new\n");
+
+    const input = { kind: "vcs", staged: false, options: { vcs: "git" } } as const;
+    const generated = (bootstrap: Awaited<ReturnType<typeof loadAppBootstrap>>) =>
+      bootstrap.changeset.files
+        .filter((file) => file.isGenerated)
+        .map((file) => file.path)
+        .sort();
+    const expected = [
+      "bare.txt",
+      "generated/deleted.txt",
+      "generated/output file.txt",
+      "generated/untracked.txt",
+    ];
+    expect(generated(await loadAppBootstrap(input, { cwd: join(dir, "generated") }))).toEqual(
+      expected,
+    );
+
+    git(dir, "add", ".");
+    expect(generated(await loadAppBootstrap({ ...input, staged: true }, { cwd: dir }))).toEqual(
+      expected,
+    );
+    git(dir, "commit", "-m", "update");
+    expect(
+      generated(
+        await loadAppBootstrap(
+          { kind: "show", ref: "HEAD", options: { vcs: "git" } },
+          { cwd: dir },
+        ),
+      ),
+    ).toEqual(expected);
+  });
+
   test("refuses an already-cancelled embedded review load", async () => {
     const abort = new AbortController();
     abort.abort();

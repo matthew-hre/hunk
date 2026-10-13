@@ -14,8 +14,37 @@ import {
 import { reduceReviewState } from "./reducer";
 import type { ReviewState } from "./state";
 import { createReviewStore } from "./store";
+import { selectVisibleReviewFiles, selectReviewNavigationFiles } from "./selectors";
 
 const FACTS = { noteId: "user:1", timestamp: "2024-01-01T00:00:00.000Z" };
+
+describe("generated-file visibility intent", () => {
+  test("hides generated content by default and reveals it without discarding the filter or reload state", () => {
+    const document = createTestReviewDocument(["output", "source"]);
+    document.files[0]!.isGenerated = true;
+    const store = createReviewStore(document);
+    const visibleKeys = () => selectVisibleReviewFiles(store.getSnapshot()).map((file) => file.key);
+
+    expect(store.getSnapshot().selection.fileKey).toBe("source");
+    expect(visibleKeys()).toEqual(["source"]);
+    expect(selectReviewNavigationFiles(store.getSnapshot())).toEqual([
+      { fileKey: "source", hunkCount: 2 },
+    ]);
+    applyReviewIntent(store, { type: "filter/set", filter: "output" });
+    expect(visibleKeys()).toEqual([]);
+    applyReviewIntent(store, { type: "files/set-generated-visibility", visible: true });
+    expect(visibleKeys()).toEqual(["output"]);
+    expect(selectReviewNavigationFiles(store.getSnapshot())).toEqual([
+      { fileKey: "output", hunkCount: 2 },
+    ]);
+    store.dispatch({ type: "document/reconcile", document });
+    expect(visibleKeys()).toEqual(["output"]);
+    expect(store.getSnapshot().filter).toBe("output");
+    applyReviewIntent(store, { type: "files/set-generated-visibility", visible: false });
+    expect(visibleKeys()).toEqual([]);
+    expect(store.getSnapshot().document.files).toHaveLength(2);
+  });
+});
 
 /** Start a draft at the given body so note creation has something to consume. */
 function stateWithDraft(body: string): ReviewState {

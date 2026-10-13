@@ -57,6 +57,30 @@ const FILE_TOP_REVEAL = { anchor: "file-top", scrollToNote: false } as const;
 
 export const REVIEW_NAVIGATION_FIXTURES: readonly ReviewNavigationFixture[] = [
   {
+    id: "generated-files-hidden-from-navigation",
+    findings: [],
+    description:
+      "Default hunk navigation skips generated files while retaining their content in the document.",
+    build: () => {
+      const files = threeFileStream();
+      files[1]!.isGenerated = true;
+      return files;
+    },
+    moves: [
+      { scope: "hunk", delta: 1, from: { file: 0, hunkIndex: 1 } },
+      { scope: "hunk", delta: -1, from: { file: 2, hunkIndex: 0 } },
+    ],
+    selections: [{ file: "vanished", hunkIndex: 0 }],
+    expected: {
+      moves: [
+        { to: { file: 2, hunkIndex: 0 }, reveal: FILE_TOP_REVEAL },
+        { to: { file: 0, hunkIndex: 1 }, reveal: HUNK_REVEAL },
+      ],
+      normalizedSelections: [{ file: 0, hunkIndex: 0 }],
+      revealTargets: THREE_FILE_REVEAL_TARGETS,
+    },
+  },
+  {
     id: "annotated-hunk-multi-step-carry",
     findings: ["B1"],
     description:

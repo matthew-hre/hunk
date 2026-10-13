@@ -4,6 +4,8 @@ import { resolveExperimentalFeatures } from "../../core/run/experimental";
 import { isVcsReviewInput } from "../../core/vcs";
 import { summarizeHunk } from "../../core/changeset/hunkSummary";
 import { reviewHunkRanges } from "../../core/review/geometry";
+import { selectReviewFileByKey } from "../../core/review/selectors";
+import { createInitialReviewState } from "../../core/review/state";
 import { reviewProcessCapability } from "../review/capability";
 import type { ReviewPublication } from "../review/publication";
 import type { AppBootstrap } from "../../core/bootstrap";
@@ -138,7 +140,8 @@ export function createInitialSessionSnapshot(
   bootstrap: AppBootstrap,
   publication: ReviewPublication,
 ): HunkSessionSnapshot {
-  const firstFile = publication.document.files[0];
+  const initialState = createInitialReviewState(publication.document);
+  const firstFile = selectReviewFileByKey(initialState, initialState.selection.fileKey);
   const firstHunk = firstFile?.hunks[0];
   const firstRange = firstHunk ? reviewHunkRanges(firstHunk) : null;
 

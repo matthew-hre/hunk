@@ -68,6 +68,7 @@ function createTestCommands(
     saveDraftNote: record("saveDraftNote"),
     startUserNote: record("startUserNote"),
     toggleAgentNotes: record("toggleAgentNotes"),
+    toggleGeneratedFiles: record("toggleGeneratedFiles"),
     toggleCopyDecorations: record("toggleCopyDecorations"),
     toggleFocusArea: record("toggleFocusArea"),
     toggleGapForSelectedHunk: record("toggleGapForSelectedHunk"),
@@ -319,6 +320,7 @@ describe("builtinCommandKeyDefaults", () => {
       "hunk.view.cursorLineOff",
       "hunk.view.cursorLineRow",
       "hunk.view.toggleCopyDecorations",
+      "hunk.view.toggleGeneratedFiles",
     ]);
   });
 });

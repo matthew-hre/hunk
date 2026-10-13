@@ -42,6 +42,8 @@ export interface BuildAppMenusOptions {
   layoutMode: LayoutMode;
   filesPaneVisible: boolean;
   showAgentNotes: boolean;
+  showGeneratedFiles?: boolean;
+  generatedFileCount?: number;
   showHelp: boolean;
   showHunkHeaders: boolean;
   showLineNumbers: boolean;
@@ -137,6 +139,8 @@ export function buildAppMenus({
   layoutMode,
   filesPaneVisible,
   showAgentNotes,
+  showGeneratedFiles,
+  generatedFileCount = 0,
   showHelp,
   showHunkHeaders,
   showLineNumbers,
@@ -167,6 +171,11 @@ export function buildAppMenus({
       { commandId: "hunk.view.openThemeSelector", label: "Themes…" },
       SEPARATOR,
       { commandId: "hunk.view.toggleAgentNotes", label: "Agent notes", checked: showAgentNotes },
+      {
+        commandId: "hunk.view.toggleGeneratedFiles",
+        label: `Generated files (${generatedFileCount})`,
+        checked: showGeneratedFiles ?? false,
+      },
       { commandId: "hunk.view.toggleLineNumbers", label: "Line numbers", checked: showLineNumbers },
       { commandId: "hunk.view.toggleLineWrap", label: "Line wrapping", checked: wrapLines },
       {

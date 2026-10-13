@@ -179,6 +179,10 @@ export function reduceReviewState(state: ReviewState, action: ReviewAction): Rev
     }
     case "filter/set":
       return action.filter === state.filter ? state : { ...state, filter: action.filter };
+    case "files/set-generated-visibility":
+      return action.visible === state.showGeneratedFiles
+        ? state
+        : { ...state, showGeneratedFiles: action.visible };
     case "notes/set-visibility": {
       if (action.visible === state.showAgentNotes) {
         return state;

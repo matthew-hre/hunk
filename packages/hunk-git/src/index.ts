@@ -9,6 +9,7 @@ import {
   listGitIgnoredDirectoryRoots,
   listGitUntrackedFilesAsync,
   parseGitNumstat,
+  readGitGeneratedPaths,
   resolveGitColorMovedOptionsAsync,
   resolveGitCommitRefAsync,
   resolveGitComparisonEndpointsAsync,
@@ -436,6 +437,8 @@ export function createGitVcsAdapter({
               signal,
             }),
             review: comparison?.review,
+            readGeneratedPaths: (paths) =>
+              readGitGeneratedPaths(paths, { input, cwd: repoRoot, gitExecutable, signal }),
             ...sourceCapability,
             extraFiles: largeTrackedFiles.map(
               (file): ExtensionVcsExtraFile => ({
@@ -523,6 +526,8 @@ export function createGitVcsAdapter({
               signal,
             }),
             ...(commit ? { review: commitReviewInfo("Git", commit) } : {}),
+            readGeneratedPaths: (paths) =>
+              readGitGeneratedPaths(paths, { input, cwd: repoRoot, gitExecutable, signal }),
             ...sourceCapability,
           };
         },
@@ -557,6 +562,8 @@ export function createGitVcsAdapter({
             repoRoot,
             sourceLabel: repoRoot,
             title: input.ref ? `${repoName} stash ${input.ref}` : `${repoName} stash`,
+            readGeneratedPaths: (paths) =>
+              readGitGeneratedPaths(paths, { input, cwd: repoRoot, gitExecutable, signal }),
             patchText: await runGitTextAsync({
               input,
               args: buildGitStashShowArgs(
