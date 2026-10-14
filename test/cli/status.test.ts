@@ -42,6 +42,7 @@ afterEach(() => {
 });
 
 describe("hunk status CLI contract", () => {
+  // Repository setup and five cold CLI launches can exceed Bun's five-second default on Windows CI.
   test("redirects one JSON/static snapshot without touching index or fetching", () => {
     const cwd = createTestRepo();
     writeFileSync(join(cwd, "file.txt"), "two\n");
@@ -89,7 +90,8 @@ describe("hunk status CLI contract", () => {
       runTestCommand(cwd, [process.execPath, "run", main, "log", "--static", "--no-extensions"])
         .code,
     ).toBe(0);
-  });
+  }, 20_000);
+
   test("reports outside, bare and unsupported provider errors with nonzero exits", () => {
     const cwd = mkdtempSync(join(tmpdir(), "hunk-status-errors-"));
     dirs.push(cwd);
