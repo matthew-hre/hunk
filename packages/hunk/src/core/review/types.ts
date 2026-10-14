@@ -142,6 +142,8 @@ export interface ReviewFileV1 {
   changeKind: ReviewFileChangeKind;
   language?: string;
   agentSummary?: string;
+  /** Generated content stays in the document even when hidden from the review stream. */
+  isGenerated?: boolean;
   stats: ReviewFileStatsV1;
   flags: ReviewFileFlagsV1;
   /**

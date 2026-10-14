@@ -162,6 +162,7 @@ Review and shared commands:
 | `hunk.view.toggleAgentNotes`                   | Toggle agent notes                             | `a`                          |
 | `hunk.view.toggleCopyDecorations`              | Toggle copy decorations                        | _(none)_                     |
 | `hunk.view.toggleFilesPane`                    | Toggle files pane                              | `s`                          |
+| `hunk.view.toggleGeneratedFiles`               | Toggle generated files                         | _(none)_                     |
 | `hunk.view.toggleHunkHeaders`                  | Toggle hunk headers                            | `m`                          |
 | `hunk.view.toggleLineNumbers`                  | Toggle line numbers                            | `l`                          |
 | `hunk.view.toggleLineWrap`                     | Toggle line wrapping                           | `w`                          |

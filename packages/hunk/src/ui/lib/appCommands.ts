@@ -149,6 +149,7 @@ export interface BuildAppCommandsOptions {
   saveDraftNote: () => void;
   startUserNote: () => void;
   toggleAgentNotes: () => void;
+  toggleGeneratedFiles: () => void;
   toggleCopyDecorations: () => void;
   toggleFocusArea: () => void;
   toggleGapForSelectedHunk: () => void;
@@ -199,6 +200,7 @@ function builtinCommandHandlers(
     "hunk.app.openAgentSkill": { run: () => options.openAgentSkill() },
     "hunk.app.toggleFocusArea": { run: () => options.toggleFocusArea() },
     "hunk.review.focusFilter": { run: () => options.focusFilter() },
+    "hunk.view.toggleGeneratedFiles": { run: () => options.toggleGeneratedFiles() },
     "hunk.review.startVisualSelection": { run: () => options.startVisualSelection?.() },
     "hunk.review.copySelection": {
       isEnabled: () => options.hasVisualSelection?.() ?? false,
@@ -384,6 +386,7 @@ const NOOP_COMMAND_OPTIONS: BuildAppCommandsOptions = (() => {
     saveDraftNote: noop,
     startUserNote: noop,
     toggleAgentNotes: noop,
+    toggleGeneratedFiles: noop,
     toggleCopyDecorations: noop,
     toggleFocusArea: noop,
     toggleGapForSelectedHunk: noop,

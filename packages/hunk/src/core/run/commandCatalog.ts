@@ -56,6 +56,7 @@ export type VerticalCommandDirection = -1 | 1;
 export type AppCommandReviewEffect =
   | { kind: "selection/move"; scope: ReviewSelectionScope; direction: 1 | -1 }
   | { kind: "notes/toggle-visibility" }
+  | { kind: "files/toggle-generated-visibility" }
   /** Open a draft at the current selection; the client may supply a measured line. */
   | { kind: "notes/start-draft" }
   /** Edit the active note when that same card is an editable reviewer note. */
@@ -467,6 +468,16 @@ const BUILTIN_COMMANDS = [
     closesMenu: true,
   },
   {
+    id: "hunk.view.toggleGeneratedFiles",
+    title: "Toggle generated files",
+    category: "view",
+    defaultKeys: [],
+    locus: "semantic",
+    review: { kind: "files/toggle-generated-visibility" },
+    publicToExtensions: true,
+    closesMenu: true,
+  },
+  {
     id: "hunk.view.toggleLineWrap",
     title: "Toggle line wrapping",
     category: "view",
@@ -693,6 +704,8 @@ export function lowerAppCommandToReviewIntent(
       };
     case "notes/toggle-visibility":
       return { type: "notes/set-visibility", visible: !state.showAgentNotes };
+    case "files/toggle-generated-visibility":
+      return { type: "files/set-generated-visibility", visible: !state.showGeneratedFiles };
     case "notes/start-draft": {
       const { fileKey, hunkIndex } = noteLocation ?? selectNormalizedSelection(state);
       return fileKey === null

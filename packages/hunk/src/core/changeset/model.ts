@@ -32,6 +32,7 @@ export interface DiffFile {
   lineMoveKinds?: DiffLineMoveKinds;
   agent: AgentFileContext | null;
   isUntracked?: boolean;
+  isGenerated?: boolean;
   isBinary?: boolean;
   isTooLarge?: boolean;
   statsTruncated?: boolean;

@@ -25,6 +25,7 @@ export interface BuildReviewStreamStateOptions {
   files: DiffFile[];
   liveCommentsByFileId: Record<string, AgentAnnotation[]>;
   filterQuery: string;
+  showGeneratedFiles?: boolean;
 }
 
 export interface ReviewStreamState {
@@ -42,6 +43,7 @@ export function buildReviewStreamState({
   files,
   liveCommentsByFileId,
   filterQuery,
+  showGeneratedFiles,
 }: BuildReviewStreamStateOptions): ReviewStreamState {
   const allFiles = mergeFileAnnotationsByFileId(files, liveCommentsByFileId);
 
@@ -53,10 +55,12 @@ export function buildReviewStreamState({
       reviewFileMatchesFilter(
         {
           path: file.path,
+          isGenerated: file.isGenerated,
           ...(file.previousPath !== undefined ? { previousPath: file.previousPath } : {}),
           ...(file.agent?.summary !== undefined ? { agentSummary: file.agent.summary } : {}),
         },
         filterQuery,
+        showGeneratedFiles,
       ),
     ),
   };

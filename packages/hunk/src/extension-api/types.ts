@@ -1201,6 +1201,8 @@ export interface ExtensionVcsPatchResult {
    * unknown file than a plain read of the working copy would.
    */
   untrackedPaths?: string[];
+  /** Classify repo-root-relative reviewed paths as generated, in one batch. */
+  readGeneratedPaths?: (paths: readonly string[]) => Promise<readonly string[]>;
   /**
    * Exact old/new file contents for the files in this result.
    *

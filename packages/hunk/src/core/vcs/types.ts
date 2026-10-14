@@ -89,6 +89,8 @@ export interface VcsPatchResult {
   review?: ExtensionReviewDescriptor;
   /** Repo-root-relative untracked paths Hunk synthesizes into added-file diffs. */
   untrackedPaths?: string[];
+  /** Classify reviewed paths using the provider's generated-file metadata. */
+  readGeneratedPaths?: (paths: readonly string[]) => Promise<readonly string[]>;
   /** Exact old/new content lookups, built from the result's `readFileSource`. */
   sourceFetcherBuilder?: BuildDiffFileOptions["sourceFetcherBuilder"];
   /** Diff files built from the result's declarative `extraFiles` entries. */

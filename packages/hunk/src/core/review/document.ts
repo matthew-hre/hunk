@@ -154,6 +154,7 @@ function projectReviewFile(file: DiffFile, sourceLabel: string, duplicateIndex: 
     changeKind: identityInput.changeKind as ReviewFileChangeKind,
     ...(file.language !== undefined ? { language: file.language } : {}),
     ...(file.agent?.summary !== undefined ? { agentSummary: file.agent.summary } : {}),
+    ...(file.isGenerated ? { isGenerated: true } : {}),
     stats: identityInput.stats,
     flags: identityInput.flags,
     patch: file.patch,

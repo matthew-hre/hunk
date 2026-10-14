@@ -233,6 +233,7 @@ export interface TerminalReview {
   reviewNoteCount: number;
   reviewNoteSummaries: SessionReviewNoteSummary[];
   showAgentNotes: boolean;
+  showGeneratedFiles: boolean;
   userNotesByFileId: Record<string, UserReviewNote[]>;
   lineCursor: LineCursor | null;
   /** Read the current cursor synchronously between terminal key events. */
@@ -302,6 +303,7 @@ export interface TerminalReview {
   setShowAgentNotes: (visible: boolean) => void;
   /** Flip the note layer the way the catalogued toggle command declares it. */
   toggleAgentNotes: () => void;
+  toggleGeneratedFiles: () => void;
   startUserNoteEdit: (
     noteId: string,
     options?: { preserveViewport?: boolean },
@@ -551,8 +553,9 @@ export function useTerminalReview({
         files,
         liveCommentsByFileId: storedNotesByFileId,
         filterQuery: deferredFilter,
+        showGeneratedFiles: state.showGeneratedFiles,
       }),
-    [deferredFilter, files, storedNotesByFileId],
+    [deferredFilter, files, storedNotesByFileId, state.showGeneratedFiles],
   );
   const visibleHunkIndexesByFileId = useMemo(() => {
     if (!presentationScope) return null;
@@ -1066,6 +1069,14 @@ export function useTerminalReview({
   /** Flip the shared agent note layer, as the catalogued command declares that flip. */
   const toggleAgentNotes = useCallback(() => {
     const intent = lowerCommand("hunk.view.toggleAgentNotes");
+    if (intent) {
+      runIntent(intent);
+    }
+  }, [lowerCommand, runIntent]);
+
+  /** Flip generated-file visibility through the shared semantic command. */
+  const toggleGeneratedFiles = useCallback(() => {
+    const intent = lowerCommand("hunk.view.toggleGeneratedFiles");
     if (intent) {
       runIntent(intent);
     }
@@ -1884,6 +1895,7 @@ export function useTerminalReview({
     reviewNoteCount: reviewNoteSummaries.length,
     reviewNoteSummaries,
     showAgentNotes: state.showAgentNotes,
+    showGeneratedFiles: state.showGeneratedFiles,
     userNotesByFileId,
     scrollToNote,
     selectedFile,
@@ -1922,6 +1934,7 @@ export function useTerminalReview({
     selectVisibleHunk,
     setShowAgentNotes,
     toggleAgentNotes,
+    toggleGeneratedFiles,
     startUserNote,
     startUserNoteEdit,
     startUserNoteReply,

@@ -15,6 +15,47 @@ afterEach(() => {
 });
 
 describe("PTY chrome", () => {
+  test("generated files start hidden and can be revealed with the mouse or a remapped key", async () => {
+    const fixture = harness.createTwoFileRepoFixture();
+    writeFileSync(join(fixture.dir, ".gitattributes"), "*.ts linguist-generated=true\n");
+    const configHome = harness.createIsolatedConfigHome();
+    mkdirSync(join(configHome, "hunk"), { recursive: true });
+    writeFileSync(
+      join(configHome, "hunk", "config.toml"),
+      '[keybindings]\n"hunk.view.toggleGeneratedFiles" = "ctrl+g"\n',
+    );
+    const session = await harness.launchHunk({
+      args: ["diff", "--vcs", "git", "--no-extensions", "--exclude-untracked"],
+      cwd: fixture.dir,
+      env: { XDG_CONFIG_HOME: configHome },
+      cols: 120,
+      rows: 26,
+    });
+
+    try {
+      const hidden = await session.waitForText(/Generated files are hidden/, { timeout: 15_000 });
+      expect(hidden).not.toContain("export");
+      await harness.clickAndWaitForText(session, /View/, /Generated files \(2\)/, { first: true });
+      const revealed = await harness.clickAndWaitForText(
+        session,
+        /Generated files \(2\)/,
+        /betaValue/,
+      );
+      expect(revealed).toContain("add = true");
+      writeFileSync(join(fixture.dir, "beta.ts"), "export const betaValue = 2;\n");
+      await session.press("r");
+      const refreshed = await session.waitForText(/betaValue = 2/);
+      expect(refreshed).toContain("add = true");
+      await session.press(["ctrl", "g"]);
+      await session.waitForText(/Generated files are hidden/);
+      await session.press(["ctrl", "g"]);
+      const shown = await session.waitForText(/betaValue = 2/);
+      expect(shown).not.toContain("Generated files are hidden");
+    } finally {
+      session.close();
+    }
+  });
+
   test("top menu mouse navigation can open themes, toggle agent notes, and open help", async () => {
     const fixture = harness.createAgentFilePair();
     const session = await harness.launchHunk({

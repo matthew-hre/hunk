@@ -73,7 +73,10 @@ export function reviewFileKeysWithRetiredContent(
 }
 
 /** The file facts the shared filter reads. */
-export type ReviewFilterFile = Pick<ReviewFileV1, "path" | "previousPath" | "agentSummary">;
+export type ReviewFilterFile = Pick<
+  ReviewFileV1,
+  "path" | "previousPath" | "agentSummary" | "isGenerated"
+>;
 
 /**
  * Matches one file against the shared review filter.
@@ -87,7 +90,15 @@ export type ReviewFilterFile = Pick<ReviewFileV1, "path" | "previousPath" | "age
  * Paths are normalized first: a parser leaving a stray carriage return on a path must not
  * decide whether that file matches.
  */
-export function reviewFileMatchesFilter(file: ReviewFilterFile, filter: string) {
+export function reviewFileMatchesFilter(
+  file: ReviewFilterFile,
+  filter: string,
+  showGeneratedFiles = false,
+) {
+  if (file.isGenerated && !showGeneratedFiles) {
+    return false;
+  }
+
   const query = filter.trim().toLowerCase();
   if (!query) {
     return true;
@@ -102,14 +113,16 @@ export function reviewFileMatchesFilter(file: ReviewFilterFile, filter: string) 
 
 /** Select the files the current filter leaves visible, in review order. */
 export function selectVisibleReviewFiles(
-  state: Pick<ReviewState, "document" | "filter">,
+  state: Pick<ReviewState, "document" | "filter" | "showGeneratedFiles">,
 ): ReviewFileV1[] {
-  return state.document.files.filter((file) => reviewFileMatchesFilter(file, state.filter));
+  return state.document.files.filter((file) =>
+    reviewFileMatchesFilter(file, state.filter, state.showGeneratedFiles),
+  );
 }
 
 /** Reduce the visible stream to what relative navigation walks over. */
 export function selectReviewNavigationFiles(
-  state: Pick<ReviewState, "document" | "filter">,
+  state: Pick<ReviewState, "document" | "filter" | "showGeneratedFiles">,
 ): ReviewNavigationFile[] {
   return selectVisibleReviewFiles(state).map((file) => ({
     fileKey: file.key,
@@ -125,7 +138,7 @@ export function selectReviewNavigationFiles(
  * reviewer somewhere they never asked to be.
  */
 export function selectFallbackFileKey(
-  state: Pick<ReviewState, "document" | "filter">,
+  state: Pick<ReviewState, "document" | "filter" | "showGeneratedFiles">,
 ): string | null {
   return selectVisibleReviewFiles(state)[0]?.key ?? null;
 }
@@ -145,7 +158,7 @@ export function selectFallbackFileKey(
  * re-parsed smaller still lands on a real hunk.
  */
 export function selectNormalizedSelection(
-  state: Pick<ReviewState, "document" | "filter" | "selection">,
+  state: Pick<ReviewState, "document" | "filter" | "selection" | "showGeneratedFiles">,
 ): ReviewSemanticSelection {
   const file = selectReviewFileByKey(state, state.selection.fileKey);
   if (!file) {
@@ -452,6 +465,7 @@ type ActiveNoteState = Pick<
   | "liveNotes"
   | "selection"
   | "showAgentNotes"
+  | "showGeneratedFiles"
   | "userNotes"
 >;
 
@@ -589,7 +603,7 @@ export interface ReviewGapTarget {
  * knowledge of its fetcher.
  */
 export function selectReviewGapForSelection(
-  state: Pick<ReviewState, "document" | "filter" | "selection">,
+  state: Pick<ReviewState, "document" | "filter" | "selection" | "showGeneratedFiles">,
 ): ReviewGapTarget | undefined {
   const { fileKey, hunkIndex } = selectNormalizedSelection(state);
   const file = selectReviewFileByKey(state, fileKey);

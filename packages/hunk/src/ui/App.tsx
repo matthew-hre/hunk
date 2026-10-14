@@ -1401,6 +1401,7 @@ export function App({
         },
         saveDraftNote: () => saveDraftNote(renderer.currentFocusedEditor?.plainText),
         toggleAgentNotes,
+        toggleGeneratedFiles: review.toggleGeneratedFiles,
         toggleCopyDecorations,
         toggleFocusArea,
         toggleGapForSelectedHunk: review.toggleSelectedHunkGap,
@@ -1467,6 +1468,8 @@ export function App({
     layoutMode,
     filesPaneVisible,
     showAgentNotes,
+    showGeneratedFiles: review.showGeneratedFiles,
+    generatedFileCount: reviewFiles.filter((file) => file.isGenerated).length,
     showHelp,
     showHunkHeaders,
     showLineNumbers,
@@ -1734,7 +1737,11 @@ export function App({
             emptyStateMessage={
               reviewFiles.length === 0
                 ? "No changes to review."
-                : "No files match the current filter."
+                : !review.showGeneratedFiles &&
+                    !review.filter.trim() &&
+                    reviewFiles.every((file) => file.isGenerated)
+                  ? "Generated files are hidden. Enable View → Generated files to review them."
+                  : "No files match the current filter."
             }
             visibleHunkIndexesByFileId={review.visibleHunkIndexesByFileId}
             semanticFileIdentities={semanticFileIdentities}

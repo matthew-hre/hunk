@@ -252,10 +252,15 @@ async function loadVcsChangeset(
     id: `${file.id}:extra:${index}`,
     agent: findSidecarFileContext(sidecar, file.path, file.previousPath),
   }));
+  const files = [...parsedChangeset.files, ...adapterFiles];
+  const generatedPaths = new Set(await result.readGeneratedPaths?.(files.map((file) => file.path)));
+
   return {
     changeset: {
       ...parsedChangeset,
-      files: [...parsedChangeset.files, ...adapterFiles],
+      files: files.map((file) =>
+        generatedPaths.has(file.path) ? { ...file, isGenerated: true } : file,
+      ),
     } satisfies Changeset,
     repoRoot: result.repoRoot,
     review: result.review,

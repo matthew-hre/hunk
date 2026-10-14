@@ -885,6 +885,14 @@ stable identity and Hunk will invalidate conservatively. Leaving
 `readFileSource` off is fine: Hunk falls back to the content the patch itself carries,
 which renders the same diff with less context available.
 
+#### Generated-file metadata
+
+An operation can return `readGeneratedPaths(paths)` to classify its reviewed files.
+Hunk calls it with repo-root-relative paths after parsing the patch and adding extra
+and untracked files. Return the paths that contain generated content; Hunk retains
+their diffs but hides them by default, with **View → Generated files** to reveal them.
+The bundled Git provider resolves `linguist-generated` through `git check-attr`.
+
 #### Files outside the patch
 
 `extraFiles` lists files to review that your `patchText` does not contain, in

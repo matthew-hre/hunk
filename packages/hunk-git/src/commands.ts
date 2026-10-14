@@ -549,6 +549,29 @@ export async function runGitTextAsync(options: RunGitTextOptions): Promise<strin
   return (await runGitCommandAsync(options)).stdout;
 }
 
+/** Resolve generated-file attributes through Git, preserving nested rules and path bytes. */
+export async function readGitGeneratedPaths(
+  paths: readonly string[],
+  options: Omit<RunGitTextOptions, "args">,
+) {
+  const generated: string[] = [];
+  // Bound argv size on Windows as well as Unix; do not spawn one command per file.
+  for (let offset = 0; offset < paths.length; offset += 64) {
+    const output = await runGitTextAsync({
+      ...options,
+      args: ["check-attr", "-z", "linguist-generated", "--", ...paths.slice(offset, offset + 64)],
+    });
+    const fields = output.split("\0");
+    for (let index = 0; index + 2 < fields.length; index += 3) {
+      if (fields[index + 2] === "set" || fields[index + 2] === "true") {
+        generated.push(fields[index]!);
+      }
+    }
+  }
+
+  return generated;
+}
+
 const GIT_BOOLEAN_TRUE_VALUES = new Set(["true", "yes", "on", "1", "always"]);
 const GIT_BOOLEAN_FALSE_VALUES = new Set(["false", "no", "off", "0", "never"]);
 
